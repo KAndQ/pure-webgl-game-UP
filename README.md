@@ -9,3 +9,10 @@ This is a practice program. Use React + Webgl.
 
 -   To achieve 358 KM
 -   Use Keyboard [←, ↑, →]
+
+## Debug
+
+```bash
+npm install -g http-server
+http-server ./ --cors -c-1 --gzip
+```
