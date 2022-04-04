@@ -5,8 +5,8 @@ const BACKGROUND_MOVE_SCALE = 0.382;
 const DISTANCE = 358000;
 const ACCELERATED = 10;
 const INIT_UP_SPEED = 200.0;
-const MAX_UP_SPEED = 960;
-const MAX_Y_INTERVAL = 640;
+const MAX_UP_SPEED = 810;
+const MAX_Y_INTERVAL = 380;
 
 const Game = {
     __now__: 0,
