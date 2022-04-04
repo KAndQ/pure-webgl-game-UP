@@ -1,4 +1,7 @@
 function main() {
-    console.log("Hello Sky");
-    Game.launch();
+    console.log("Hi Sky");
+
+    GameRes.load(() => {
+        Game.launch();
+    });
 }
