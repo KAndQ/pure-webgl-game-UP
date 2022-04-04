@@ -1,12 +1,12 @@
-const SHUTTLE_MOVE_SPEED = 320.0;
+const SHUTTLE_MOVE_SPEED = 300.0;
 const SHUTTLE_SPEED_UP_SCALE = 3.0;
 const SHUTTLE_FIXED_Y = 64;
 const BACKGROUND_MOVE_SCALE = 0.5;
 const DISTANCE = 358000;
-const ACCELERATED = 7;
+const ACCELERATED = 10;
 const INIT_UP_SPEED = 200.0;
-const MAX_UP_SPEED = 800;
-const MAX_Y_INTERVAL = 500;
+const MAX_UP_SPEED = 960;
+const MAX_Y_INTERVAL = 640;
 
 const Game = {
     __now__: 0,
@@ -29,6 +29,8 @@ let isSuccess = false;
 let currentDistance = 0;
 let yInterval = INIT_UP_SPEED;
 let isInteraction = false;
+let shuttleChanged = false;
+let brickChangedCount = 0;
 
 function pushBrickToRunning(brick) {
     if (Math.random() < 0.5) {
@@ -45,6 +47,29 @@ function pushBrickToRunning(brick) {
     }
 
     brick.isHide = false;
+    switch (brickChangedCount) {
+        case 0:
+            brick.imgId = GameRes.IMG_BRICK_1;
+            break;
+        case 1:
+            brick.imgId = GameRes.IMG_BRICK_2;
+            break;
+        case 2:
+            brick.imgId = GameRes.IMG_BRICK_3;
+            break;
+        default:
+            {
+                const r = Math.random();
+                if (r <= 0.3) {
+                    brick.imgId = GameRes.IMG_BRICK_1;
+                } else if (r <= 0.6) {
+                    brick.imgId = GameRes.IMG_BRICK_2;
+                } else {
+                    brick.imgId = GameRes.IMG_BRICK_3;
+                }
+            }
+            break;
+    }
     runningBricks.push(brick);
 }
 
@@ -72,7 +97,7 @@ function intersects(one, two) {
 }
 
 Game.update = function () {
-    currentDistance += upSpeed * Game.__elapse__;
+    currentDistance += upSpeed * Game.__elapse__ * 2;
 
     upSpeed += ACCELERATED * Game.__elapse__;
     if (upSpeed > MAX_UP_SPEED) {
@@ -82,6 +107,25 @@ Game.update = function () {
     yInterval += ACCELERATED * Game.__elapse__;
     if (yInterval > MAX_Y_INTERVAL) {
         yInterval = MAX_Y_INTERVAL;
+    }
+
+    if (!shuttleChanged && currentDistance >= DISTANCE * 0.5) {
+        shuttleChanged = true;
+        shuttle.imgId = GameRes.IMG_SHUTTLE_2;
+    }
+
+    if (brickChangedCount === 0) {
+        if (currentDistance >= DISTANCE * 0.25) {
+            brickChangedCount++;
+        }
+    } else if (brickChangedCount === 1) {
+        if (currentDistance >= DISTANCE * 0.5) {
+            brickChangedCount++;
+        }
+    } else if (brickChangedCount === 2) {
+        if (currentDistance >= DISTANCE * 0.75) {
+            brickChangedCount++;
+        }
     }
 
     Game.updateBackground();
@@ -186,7 +230,7 @@ Game.launch = function () {
         Game.__sprites__.push(background);
     }
 
-    shuttle = GameSprite.createSpaceshipSprite(GameRes.IMG_SHUTTLE_2);
+    shuttle = GameSprite.createSpaceshipSprite(GameRes.IMG_SHUTTLE_1);
     Game.__sprites__.push(shuttle);
 
     for (let i = 1; i <= 40; ++i) {
@@ -241,10 +285,13 @@ Game.start = function () {
     // shuttle
     shuttle.position.x = Game.__winSize__.width * 0.5;
     shuttle.position.y = SHUTTLE_FIXED_Y;
+    shuttleChanged = false;
+    shuttle.imgId = GameRes.IMG_SHUTTLE_1;
 
     // bricks
     bricksCache.forEach((brick) => {
         brick.isHide = true;
+        brick.imgId = GameRes.IMG_BRICK_1;
     });
     runningBricks = [];
     for (let ii = 1; ii <= 3; ++ii) {
@@ -260,6 +307,7 @@ Game.start = function () {
     shuttleLeftMoveFlag = false;
     shuttleRightMoveFlag = false;
     shuttleSpeedUpFlag = false;
+    brickChangedCount = 0;
 };
 
 Game.fail = function () {
