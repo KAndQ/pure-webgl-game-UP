@@ -8,6 +8,13 @@ const GameAudio = {
     },
 
     playBGM: function () {
-        GameRes.getAudio(GameRes.AUD_BGM).play();
+        const audio = GameRes.getAudio(GameRes.AUD_BGM);
+        audio.loop = true;
+        audio.play();
+    },
+
+    stopBGM: function () {
+        const audio = GameRes.getAudio(GameRes.AUD_BGM);
+        audio.pause();
     },
 };
