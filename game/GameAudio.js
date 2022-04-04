@@ -3,7 +3,11 @@ const GameAudio = {
         GameRes.getAudio(GameRes.AUD_CLICK).play();
     },
 
-    playFail: function () {},
+    playFail: function () {
+        GameRes.getAudio(GameRes.AUD_FAIL).play();
+    },
 
-    playBGM: function () {},
+    playBGM: function () {
+        GameRes.getAudio(GameRes.AUD_BGM).play();
+    },
 };
