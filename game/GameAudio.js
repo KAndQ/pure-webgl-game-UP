@@ -10,6 +10,7 @@ const GameAudio = {
     playBGM: function () {
         const audio = GameRes.getAudio(GameRes.AUD_BGM);
         audio.loop = true;
+        audio.volume = 0.2;
         audio.play();
     },
 

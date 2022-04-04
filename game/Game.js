@@ -1,4 +1,4 @@
-const SHUTTLE_MOVE_SPEED = 300.0;
+const SHUTTLE_MOVE_SPEED = 320.0;
 const SHUTTLE_SPEED_UP_SCALE = 3.0;
 const SHUTTLE_FIXED_Y = 64;
 const BACKGROUND_MOVE_SCALE = 0.5;
@@ -28,6 +28,7 @@ let isFailed = false;
 let isSuccess = false;
 let currentDistance = 0;
 let yInterval = INIT_UP_SPEED;
+let isInteraction = false;
 
 function pushBrickToRunning(brick) {
     if (Math.random() < 0.5) {
@@ -56,10 +57,21 @@ function randomFindBrick() {
     }
 }
 
-Game.update = function (time) {
-    Game.__elapse__ = (time - Game.__now__) * 0.001;
-    Game.__now__ = time;
+function intersects(one, two) {
+    // const maxax = this.x + this.width;
+    // const maxay = this.y + this.height;
+    // const maxbx = other.x + other.width;
+    // const maxby = other.y + other.height;
+    // return !(maxax < other.x || maxbx < this.x || maxay < other.y || maxby < this.y);
 
+    const maxax = one.x + one.w;
+    const maxay = one.y + one.h;
+    const maxbx = two.x + two.w;
+    const maxby = two.y + two.h;
+    return !(maxax < two.x || maxbx < one.x || maxay < two.y || maxby < one.y);
+}
+
+Game.update = function () {
     currentDistance += upSpeed * Game.__elapse__;
 
     upSpeed += ACCELERATED * Game.__elapse__;
@@ -97,9 +109,15 @@ Game.draw = function () {
 };
 
 Game.mainLoop = function (time) {
-    if (!Game.__pause__) {
-        Game.update(time);
+    Game.__elapse__ = (time - Game.__now__) * 0.001;
+    Game.__now__ = time;
+
+    if (Game.__elapse__ <= 0.2) {
+        if (!Game.__pause__) {
+            Game.update(time);
+        }
     }
+
     Game.draw();
     requestAnimationFrame(Game.mainLoop);
 };
@@ -111,6 +129,11 @@ Game.launch = function () {
     Game.__winSize__ = { width: gl.canvas.width, height: gl.canvas.height };
 
     document.addEventListener("keydown", function (e) {
+        if (!isInteraction) {
+            isInteraction = true;
+            GameAudio.playBGM();
+        }
+
         if (Game.__pause__) {
             return;
         }
@@ -193,9 +216,11 @@ Game.launch = function () {
     Game.mainLoop(0);
 
     setInterval(() => {
-        console.log(`==>> yInterval = ${yInterval}`);
-        console.log(`==>> upSpeed = ${upSpeed}`);
-        console.log(`==>> currentDistance = ${currentDistance}`);
+        console.log("****************************************");
+        console.log(`==>> currentDistance = ${currentDistance.toFixed(1)}`);
+        console.log(`==>> yInterval = ${yInterval.toFixed(1)}`);
+        console.log(`==>> upSpeed = ${upSpeed.toFixed(1)}`);
+        console.log("****************************************");
     }, 5000);
 };
 
@@ -237,9 +262,17 @@ Game.start = function () {
     shuttleSpeedUpFlag = false;
 };
 
-Game.fail = function () {};
+Game.fail = function () {
+    GameAudio.stopBGM();
+    Game.__pause__ = true;
+    alert("THE SHUTTLE CRASHED!!!\nPlease refresh the PAGE.");
+};
 
-Game.success = function () {};
+Game.success = function () {
+    GameAudio.stopBGM();
+    Game.__pause__ = true;
+    alert(`Congratulations!!!\nThe shuttle to achieve ${Math.floor(DISTANCE * 0.001)}KM\nThank you for playing my game.`);
+};
 
 Game.updateBackground = function () {
     backgrounds.forEach((v) => {
@@ -300,6 +333,24 @@ Game.updateShuttle = function () {
     }
 };
 
-Game.checkCollision = function () {};
+Game.checkCollision = function () {
+    const shuttleRects = [
+        { x: shuttle.position.x - 7, y: shuttle.position.y - 13, w: 14, h: 29 },
+        { x: shuttle.position.x - 22, y: shuttle.position.y - 13, w: 44, h: 7 },
+    ];
+    for (const brick of runningBricks) {
+        const brickRect = { x: brick.position.x, y: brick.position.y, w: brick.size.w, h: brick.size.h };
+        for (const shuttleRect of shuttleRects) {
+            if (intersects(shuttleRect, brickRect)) {
+                isFailed = true;
+                return;
+            }
+        }
+    }
+};
 
-Game.checkSuccess = function () {};
+Game.checkSuccess = function () {
+    if (currentDistance >= DISTANCE && !isFailed) {
+        isSuccess = true;
+    }
+};
