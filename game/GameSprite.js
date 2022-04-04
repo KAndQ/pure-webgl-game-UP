@@ -1,15 +1,13 @@
 const GameSprite = {
     __vertexShaderSource__: `#version 300 es
-// 属性是输入(in)顶点着色器的，从缓冲区接收数据
+
 in vec4 a_position;
 in vec2 a_texcoord;
 
 uniform mat3 u_matrix;
 
-// 定义一个传递给片段着色器的颜色变量
 out vec2 v_texcoord;
 
-// 所有着色器都有一个 main 函数
 void main() {
   gl_Position = vec4(u_matrix * vec3(a_position.xy, 1.0), 1.0);
   v_texcoord = a_texcoord;
@@ -145,6 +143,7 @@ GameSprite.createBrickSprite = function (imgId, sizeType) {
         position: { x: 0, y: 0 },
         angle: 0,
         sizeType,
+        size: { w: (sizeType + 1) * 64, h: 64 },
         imgId,
         program: undefined,
         vao: GameSprite.__brickVAOs__[sizeType],
@@ -190,8 +189,7 @@ GameSprite.draw = function (sprite) {
             case GameRes.IMG_BRICK_2:
             case GameRes.IMG_BRICK_3:
                 {
-                    const size = { w: (sprite.sizeType + 1) * 64, h: 64 };
-                    matrix = Matrix.scale(matrix, size.w, size.h);
+                    matrix = Matrix.scale(matrix, sprite.size.w, sprite.size.h);
                 }
                 break;
             default:
