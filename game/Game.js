@@ -3,6 +3,7 @@ const SHUTTLE_SPEED_UP_SCALE = 3.0;
 const SHUTTLE_FIXED_Y = 64;
 const BACKGROUND_MOVE_SCALE = 0.382;
 const DISTANCE = 358000;
+const DISTANCE_MOVE_SCALE = 2;
 const ACCELERATED = 10;
 const INIT_UP_SPEED = 200.0;
 const MAX_UP_SPEED = 810;
@@ -97,7 +98,7 @@ function intersects(one, two) {
 }
 
 Game.update = function () {
-    currentDistance += upSpeed * Game.__elapse__ * 2;
+    currentDistance += upSpeed * Game.__elapse__ * DISTANCE_MOVE_SCALE;
 
     upSpeed += ACCELERATED * Game.__elapse__;
     if (upSpeed > MAX_UP_SPEED) {
