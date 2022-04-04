@@ -164,6 +164,10 @@ GameSprite.createBackground = function (imgId) {
 };
 
 GameSprite.draw = function (sprite) {
+    if (sprite.isHide) {
+        return;
+    }
+
     const gl = GameGlobal.getGL();
 
     if (sprite.program === undefined) {

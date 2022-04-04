@@ -8,7 +8,8 @@ This is a practice program. Use React + Webgl.
 ## The rules of the game
 
 -   To achieve 358 KM
--   Use Keyboard [←, →], shift
+-   Use Keyboard [←, →, shift]
+    -   shift speed up
 
 ## Debug
 

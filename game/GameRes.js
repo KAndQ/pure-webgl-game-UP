@@ -11,6 +11,10 @@ const GameRes = {
     IMG_SHUTTLE_2: 4,
     IMG_TILE_BACKGROUND: 5,
 
+    AUD_BGM: 0,
+    AUD_CLICK: 1,
+    AUD_FAIL: 2,
+
     load: function (callback) {
         let count = 0;
         const imgs = ["img_brick1.png", "img_brick2.png", "img_brick3.png", "img_shuttle1.png", "img_shuttle2.png", "img_tile-background.png"];
@@ -50,12 +54,9 @@ const GameRes = {
         });
 
         const audios = ["audio_bgm.mp3", "audio_click.mp3", "audio_fail.mp3"];
-        audios.forEach(function (v) {
-            const audio = new Audio();
-            audio.src = "game/res/" + v;
-            audio.onload = function () {
-                GameRes.__audios__.push(audio);
-            };
+        audios.forEach(function (v, index) {
+            const audio = new Audio("game/res/" + v);
+            GameRes.__audios__[index] = audio;
         });
     },
 
@@ -65,5 +66,9 @@ const GameRes = {
 
     getImage: function (imgId) {
         return GameRes.__images__[imgId];
+    },
+
+    getAudio: function (audioId) {
+        return GameRes.__audios__[audioId];
     },
 };
