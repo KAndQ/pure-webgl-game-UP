@@ -6,8 +6,8 @@ const DISTANCE = 358000;
 const DISTANCE_MOVE_SCALE = 2;
 const ACCELERATED = 10;
 const INIT_UP_SPEED = 200.0;
-const MAX_UP_SPEED = 810;
-const MAX_Y_INTERVAL = 380;
+const MAX_UP_SPEED = 840;
+const MAX_Y_INTERVAL = 360;
 
 const Game = {
     __now__: 0,
@@ -32,6 +32,8 @@ let yInterval = INIT_UP_SPEED;
 let isInteraction = false;
 let shuttleChanged = false;
 let brickChangedCount = 0;
+let distanceElement = undefined;
+let speedElement = undefined;
 
 function pushBrickToRunning(brick) {
     if (Math.random() < 0.5) {
@@ -97,81 +99,14 @@ function intersects(one, two) {
     return !(maxax < two.x || maxbx < one.x || maxay < two.y || maxby < one.y);
 }
 
-Game.update = function () {
-    currentDistance += upSpeed * Game.__elapse__ * DISTANCE_MOVE_SCALE;
-
-    upSpeed += ACCELERATED * Game.__elapse__;
-    if (upSpeed > MAX_UP_SPEED) {
-        upSpeed = MAX_UP_SPEED;
-    }
-
-    yInterval += ACCELERATED * Game.__elapse__;
-    if (yInterval > MAX_Y_INTERVAL) {
-        yInterval = MAX_Y_INTERVAL;
-    }
-
-    if (!shuttleChanged && currentDistance >= DISTANCE * 0.5) {
-        shuttleChanged = true;
-        shuttle.imgId = GameRes.IMG_SHUTTLE_2;
-    }
-
-    if (brickChangedCount === 0) {
-        if (currentDistance >= DISTANCE * 0.25) {
-            brickChangedCount++;
-        }
-    } else if (brickChangedCount === 1) {
-        if (currentDistance >= DISTANCE * 0.5) {
-            brickChangedCount++;
-        }
-    } else if (brickChangedCount === 2) {
-        if (currentDistance >= DISTANCE * 0.75) {
-            brickChangedCount++;
-        }
-    }
-
-    Game.updateBackground();
-    Game.updateBricks();
-    Game.updateShuttle();
-    Game.checkCollision();
-    Game.checkSuccess();
-
-    if (isFailed) {
-        Game.fail();
-    } else if (isSuccess) {
-        Game.success();
-    }
-};
-
-Game.draw = function () {
-    const gl = GameGlobal.getGL();
-
-    gl.clearColor(0, 0, 0, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    Game.__sprites__.forEach(function (v) {
-        GameSprite.draw(v);
-    });
-};
-
-Game.mainLoop = function (time) {
-    Game.__elapse__ = (time - Game.__now__) * 0.001;
-    Game.__now__ = time;
-
-    if (Game.__elapse__ <= 0.2) {
-        if (!Game.__pause__) {
-            Game.update(time);
-        }
-    }
-
-    Game.draw();
-    requestAnimationFrame(Game.mainLoop);
-};
-
 Game.launch = function () {
     console.log("UP Coming...");
 
+    distanceElement = document.querySelector("#distance");
+    speedElement = document.querySelector("#speed");
+
     const gl = GameGlobal.getGL();
-    Game.__winSize__ = { width: gl.canvas.width, height: gl.canvas.height };
+    Game.__winSize__ = { width: gl.canvas.clientWidth, height: gl.canvas.clientHeight };
 
     document.addEventListener("keydown", function (e) {
         if (!isInteraction) {
@@ -219,6 +154,9 @@ Game.launch = function () {
                 break;
             case "Shift":
                 shuttleSpeedUpFlag = false;
+                break;
+            case "Escape":
+                alert("Pause");
                 break;
         }
     });
@@ -311,16 +249,52 @@ Game.start = function () {
     brickChangedCount = 0;
 };
 
-Game.fail = function () {
-    GameAudio.stopBGM();
-    Game.__pause__ = true;
-    alert("THE SHUTTLE CRASHED!!!\nPlease refresh the PAGE.");
-};
+Game.update = function () {
+    currentDistance += upSpeed * Game.__elapse__ * DISTANCE_MOVE_SCALE;
 
-Game.success = function () {
-    GameAudio.stopBGM();
-    Game.__pause__ = true;
-    alert(`Congratulations!!!\nThe shuttle to achieve ${Math.floor(DISTANCE * 0.001)}KM\nThank you for playing my game.`);
+    upSpeed += ACCELERATED * Game.__elapse__;
+    if (upSpeed > MAX_UP_SPEED) {
+        upSpeed = MAX_UP_SPEED;
+    }
+
+    yInterval += ACCELERATED * Game.__elapse__;
+    if (yInterval > MAX_Y_INTERVAL) {
+        yInterval = MAX_Y_INTERVAL;
+    }
+
+    if (!shuttleChanged && currentDistance >= DISTANCE * 0.5) {
+        shuttleChanged = true;
+        shuttle.imgId = GameRes.IMG_SHUTTLE_2;
+    }
+
+    if (brickChangedCount === 0) {
+        if (currentDistance >= DISTANCE * 0.25) {
+            brickChangedCount++;
+        }
+    } else if (brickChangedCount === 1) {
+        if (currentDistance >= DISTANCE * 0.5) {
+            brickChangedCount++;
+        }
+    } else if (brickChangedCount === 2) {
+        if (currentDistance >= DISTANCE * 0.75) {
+            brickChangedCount++;
+        }
+    }
+
+    Game.updateBackground();
+    Game.updateBricks();
+    Game.updateShuttle();
+    Game.checkCollision();
+    Game.checkSuccess();
+
+    distanceElement.textContent = `${(currentDistance / 1000).toFixed(2)}/${(DISTANCE / 1000).toFixed(0)} KM`;
+    speedElement.textContent = `${(upSpeed * DISTANCE_MOVE_SCALE).toFixed(1)}(${MAX_UP_SPEED * DISTANCE_MOVE_SCALE}) m/s`;
+
+    if (isFailed) {
+        Game.fail();
+    } else if (isSuccess) {
+        Game.success();
+    }
 };
 
 Game.updateBackground = function () {
@@ -402,4 +376,41 @@ Game.checkSuccess = function () {
     if (currentDistance >= DISTANCE && !isFailed) {
         isSuccess = true;
     }
+};
+
+Game.fail = function () {
+    GameAudio.stopBGM();
+    Game.__pause__ = true;
+    setTimeout(() => alert("THE SHUTTLE CRASHED!!!\nPlease refresh the PAGE."), 0);
+};
+
+Game.success = function () {
+    GameAudio.stopBGM();
+    Game.__pause__ = true;
+    setTimeout(() => alert(`Congratulations!!!\nThe shuttle to achieve ${Math.floor(DISTANCE * 0.001)}KM\nThank you for playing my game.`), 0);
+};
+
+Game.draw = function () {
+    const gl = GameGlobal.getGL();
+
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    Game.__sprites__.forEach(function (v) {
+        GameSprite.draw(v);
+    });
+};
+
+Game.mainLoop = function (time) {
+    Game.__elapse__ = (time - Game.__now__) * 0.001;
+    Game.__now__ = time;
+
+    if (Game.__elapse__ <= 0.2) {
+        if (!Game.__pause__) {
+            Game.update(time);
+        }
+    }
+
+    Game.draw();
+    requestAnimationFrame(Game.mainLoop);
 };
