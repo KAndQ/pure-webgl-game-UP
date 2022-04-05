@@ -229,7 +229,7 @@ Game.start = function () {
         brick.imgId = GameRes.IMG_BRICK_1;
     });
     runningBricks = [];
-    for (let ii = 1; ii <= 3; ++ii) {
+    for (let ii = 1; ii <= 10; ++ii) {
         const brick = randomFindBrick();
         pushBrickToRunning(brick);
     }
