@@ -1,6 +1,6 @@
 # pure-webgl-game-UP
 
-This is a practice program. Use React + Webgl.
+This is a practice program, use PURE webgl. No game engine.
 
 -   [x] Use PC Play
 -   [ ] Mobile phone not supported
