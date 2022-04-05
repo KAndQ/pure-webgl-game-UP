@@ -106,7 +106,8 @@ Game.launch = function () {
     speedElement = document.querySelector("#speed");
 
     const gl = GameGlobal.getGL();
-    Game.__winSize__ = { width: gl.canvas.clientWidth, height: gl.canvas.clientHeight };
+    Game.__winSize__ = { width: gl.canvas.width, height: gl.canvas.height };
+    console.log("[SYS] ==>> winSize =", Game.__winSize__);
 
     document.addEventListener("keydown", function (e) {
         if (!isInteraction) {
@@ -163,7 +164,7 @@ Game.launch = function () {
 
     GameSprite.init();
 
-    for (let i = 1; i <= 2; ++i) {
+    for (let i = 1; i <= 3; ++i) {
         const background = GameSprite.createBackground(GameRes.IMG_TILE_BACKGROUND);
         backgrounds.push(background);
         Game.__sprites__.push(background);
@@ -212,13 +213,8 @@ Game.start = function () {
 
     // background
     backgrounds.forEach((background, index) => {
-        if (index === 1) {
-            background.position.x = Game.__winSize__.width * 0.5;
-            background.position.y = background.size.h * 0.5;
-        } else {
-            background.position.x = Game.__winSize__.width * 0.5;
-            background.position.y = background.size.h * 1.5;
-        }
+        background.position.x = Game.__winSize__.width * 0.5;
+        background.position.y = background.size.h * (index + 0.5);
     });
 
     // shuttle
@@ -304,7 +300,8 @@ Game.updateBackground = function () {
 
     backgrounds.forEach((v, index) => {
         if (v.position.y + v.size.h * 0.5 < 0) {
-            const another = backgrounds[(index + 1) % backgrounds.length];
+            index = index === 0 ? backgrounds.length - 1 : index - 1;
+            const another = backgrounds[index % backgrounds.length];
             v.position.y = another.position.y + another.size.h;
         }
     });
@@ -357,19 +354,19 @@ Game.updateShuttle = function () {
 };
 
 Game.checkCollision = function () {
-    const shuttleRects = [
-        { x: shuttle.position.x - 7, y: shuttle.position.y - 13, w: 14, h: 29 },
-        { x: shuttle.position.x - 22, y: shuttle.position.y - 13, w: 44, h: 7 },
-    ];
-    for (const brick of runningBricks) {
-        const brickRect = { x: brick.position.x, y: brick.position.y, w: brick.size.w, h: brick.size.h };
-        for (const shuttleRect of shuttleRects) {
-            if (intersects(shuttleRect, brickRect)) {
-                isFailed = true;
-                return;
-            }
-        }
-    }
+    // const shuttleRects = [
+    //     { x: shuttle.position.x - 7, y: shuttle.position.y - 13, w: 14, h: 29 },
+    //     { x: shuttle.position.x - 22, y: shuttle.position.y - 13, w: 44, h: 7 },
+    // ];
+    // for (const brick of runningBricks) {
+    //     const brickRect = { x: brick.position.x, y: brick.position.y, w: brick.size.w, h: brick.size.h };
+    //     for (const shuttleRect of shuttleRects) {
+    //         if (intersects(shuttleRect, brickRect)) {
+    //             isFailed = true;
+    //             return;
+    //         }
+    //     }
+    // }
 };
 
 Game.checkSuccess = function () {
