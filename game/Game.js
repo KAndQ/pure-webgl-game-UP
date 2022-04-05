@@ -6,8 +6,8 @@ const DISTANCE = 358000;
 const DISTANCE_MOVE_SCALE = 2;
 const ACCELERATED = 10;
 const INIT_UP_SPEED = 200.0;
-const MAX_UP_SPEED = 840;
-const MAX_Y_INTERVAL = 360;
+const MAX_UP_SPEED = 825;
+const MAX_Y_INTERVAL = 380;
 
 const Game = {
     __now__: 0,
@@ -354,19 +354,19 @@ Game.updateShuttle = function () {
 };
 
 Game.checkCollision = function () {
-    // const shuttleRects = [
-    //     { x: shuttle.position.x - 7, y: shuttle.position.y - 13, w: 14, h: 29 },
-    //     { x: shuttle.position.x - 22, y: shuttle.position.y - 13, w: 44, h: 7 },
-    // ];
-    // for (const brick of runningBricks) {
-    //     const brickRect = { x: brick.position.x, y: brick.position.y, w: brick.size.w, h: brick.size.h };
-    //     for (const shuttleRect of shuttleRects) {
-    //         if (intersects(shuttleRect, brickRect)) {
-    //             isFailed = true;
-    //             return;
-    //         }
-    //     }
-    // }
+    const shuttleRects = [
+        { x: shuttle.position.x - 7, y: shuttle.position.y - 13, w: 14, h: 29 },
+        { x: shuttle.position.x - 22, y: shuttle.position.y - 13, w: 44, h: 7 },
+    ];
+    for (const brick of runningBricks) {
+        const brickRect = { x: brick.position.x, y: brick.position.y, w: brick.size.w, h: brick.size.h };
+        for (const shuttleRect of shuttleRects) {
+            if (intersects(shuttleRect, brickRect)) {
+                isFailed = true;
+                return;
+            }
+        }
+    }
 };
 
 Game.checkSuccess = function () {
